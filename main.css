@@ -1,0 +1,20 @@
+html, body, #container { height: 100%; }
+body > #container { height: auto; min-height: 100%; } /* Stopka*/
+
+
+#footer { /* Stopka */
+    clear: both;
+    position: relative;
+    z-index: 10;
+    height: 2em;
+    margin-top: -2em;
+}
+
+#bity { /* Umiejscowienie checkboxów do dni tygodni*/
+	text-align: left !important;
+	margin: auto;
+}
+
+.rameczka {
+	border: 2px solid black;
+}
