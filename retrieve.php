@@ -24,12 +24,15 @@
 	{
 		$odebraneDane = json_decode($_POST['slaves'], true); //gdy true to konwertuje $odebraneDane do associative array
 		
-		foreach ($odebraneDane as $key => $slavestany) {
-			$di = intval($slavestany->di);
-			$ai = intval($slavestany->ai);
-			$id = intval($slavestany->id);
+		//echo(print_r($odebraneDane,true));
+		
+		foreach ($odebraneDane as $value ) {
+			//echo(print_r($value,true));
+			$di = intval($value["di"]);
+			$ai = intval($value["ai"]);
+			$id = intval($value["id"]);
 
-			$sql = "UPDATE slavestany SET di='$di', ai='$ai' WHERE id=$id";
+			$sql = "UPDATE slavestany SET di=$di, ai=$ai WHERE id=$id";
 			$result = $conn->query($sql);
 			if ($result === FALSE) {
 				echo "Connection failed";
@@ -40,9 +43,10 @@
 	else //wysylka do mastera
 	{
 		// zwracam oba slave'y z db
-		$result = $conn->query("SELECT id, di, ai FROM slavestany WHERE id BETWEEN 0 and 1;");
+		$result = $conn->query("SELECT id, di, ai FROM slavestany WHERE id BETWEEN 0 and 255;");
 	 
 		// kolejne rzedy do tablicy
+		$rows = array();
 		while($row = mysqli_fetch_assoc($result)) 
 		{
 			$rows[] = $row;
