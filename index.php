@@ -162,7 +162,8 @@
 					<h3>Formularz</h3>
 				</header>
 				<div class="w3-container w3-center">
-					<h3 class="w3-text-theme" id="tytul"><?php if (isset($num)) echo $slavearray[$num]["name"]; else echo "Nie wybrano slave'a"; ?><h3>
+					<h4 class="w3-text-theme" id="tytul"><?php if (isset($num)) echo $slavearray[$num]["name"]; else echo "Nie wybrano slave'a"; ?><h4>
+					<h4 class="w3-text-theme" id="podtytul"><?php if (isset ($num)) echo $slavearray[$num]["id"]; else echo ""; ?><h4>
 				</div>
 
 				<div class="w3-border-top w3-container ">
