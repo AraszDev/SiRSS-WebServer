@@ -16,5 +16,14 @@ body > #container { height: auto; min-height: 100%; } /* Stopka*/
 }
 
 .rameczka {
-	border: 2px solid black;
+	
+	margin-bottom: 2em;
+}
+
+.button {
+display:inline-block;
+min-width: 50px;
+width: 150px;
+padding:5px 10px;
+
 }
