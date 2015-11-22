@@ -14,6 +14,16 @@
 		
 		<?php
 		
+		if (isset($_POST['s1'])) {
+			$num = 0;
+		}
+		if (isset($_POST['s2'])) {
+			$num = 1;
+		}
+		if (isset($_POST['s3'])) {
+			$num = 2;
+		}
+		
 		if (isset($_GET['analogSlider'])) //gdy wyslano form
 		{
 			$analog = $_GET['analogSlider'];//utrzymanie wartosci slidera w formularzu
@@ -37,7 +47,7 @@
 				echo "Connection failed";
 			}
 			else {
-				switch($_GET['select_slave']) {
+				switch($_GET['slaveNum']) {
 					case 0:
 					$sql = "SELECT * FROM slavestany
 						WHERE id=12";		
@@ -56,7 +66,7 @@
 				
 				if ($result->num_rows > 0) {
 					//cos juz istnieje w bazie danych - UPDATE
-					switch($_GET['select_slave']) {
+					switch($_GET['slaveNum']) {
 						case 0:
 						$sql = "UPDATE slavestany SET di=$przeliczone, ai=$_GET[analogSlider] WHERE id = 12";
 						break;
@@ -77,7 +87,7 @@
 				}
 				else {
 					//nic nie ma w bazie danych - INSERT INTO
-					switch($_GET['select_slave']) 
+					switch($_GET['slaveNum']) 
 					{
 						case 0:
 						//slave 1 record
@@ -104,33 +114,46 @@
 					}
 				}
 			}
+			$num = $_GET['slaveNum'];
 		}
 		
-		// if (empty($_GET['digital']) //formularz nie byl wyslany
-		// {
-			// $conn = new mysqli($servername, $username, $password, $dbname);
-			// if ($conn->connect_error)
-			// {
-				// echo "Connection failed";
-			// }
-			// else
-			// {
-				// switch($_GET['select_slave']) {
-					// case 0:
-					// $sql = "SELECT * FROM slavestany
-						// WHERE id=12";		
-					// break;
-					// case 1:
-					// $sql = "SELECT * FROM slavestany
-						// WHERE id=27";
-					// break;
-					// case 2:
-					// $sql = "SELECT * FROM slavestany
-						// WHERE id=255";
-					// break;
-				// }
-			// }
-		// }
+			$servername = "localhost";
+			$username = "root";
+			$password = "ziomeczek";
+			$dbname = "interfejs";
+			$conn = new mysqli($servername, $username, $password, $dbname);
+			$result = $conn->query("SELECT id, di, ai FROM slavestany WHERE id BETWEEN 0 and 255;");
+		 
+			// kolejne rzedy do tablicy
+			$slavearray = array();
+			while($row = mysqli_fetch_assoc($result)) 
+			{
+				$slavearray[] = $row;
+			}
+			for ($i = 0 ; $i < 3 ; $i++) {
+				if ($i != 2) {
+					$format = "Slave %d";
+					$final = sprintf($format, $i+1);
+					$slavearray[$i]["name"] = $final;
+				}
+				else 
+					$slavearray[$i]["name"] = "Broadcast";
+			}
+			if (isset($num)) {
+				$binstring = decbin($slavearray[$num]["di"]);
+				$index = 0;
+				for ($i=strlen($binstring)-1 ; $i >= 0 ; $i--) {
+					if ($binstring[$i] == 1)
+						$ch[$index] = 1;
+					$index++;
+				}
+			}
+			
+			// zamknij resultset
+			$result->close();
+		 
+			// odlacz od db
+			$conn->close();
 		
 		?>
 		
@@ -139,7 +162,7 @@
 					<h3>Formularz</h3>
 				</header>
 				<div class="w3-container w3-center">
-					<h3 class="w3-text-theme" id="tytul">Slave 1<h3>
+					<h3 class="w3-text-theme" id="tytul"><?php if (isset($num)) echo $slavearray[$num]["name"]; else echo "Nie wybrano slave'a"; ?><h3>
 				</div>
 
 				<div class="w3-border-top w3-container ">
@@ -186,31 +209,38 @@
 					</div>
 					<div class="w3-col l6 w3-center">
 					<p>Analog I/O</p>
-					<input type="range" name="analogSlider" id="analogSlider" value="<?php if (isset($analog)) echo $analog ?>"/>
+					<input type="range" name="analogSlider" value="<?php if (isset($num)) echo $slavearray[$num]["ai"]; ?>"/>
 					</div>
 					
 					</div>
 					
 					<!-- Poza responsywnymi kolumnami -->
 					<div class="w3-center w3-margin-top w3-margin-bottom">
-						<select id="select_slave" name="select_slave" onchange="slaveChange();">
-						<option selected="selected" value=0>Slave 1</option>
-						<option value=1>Slave 2</option>
-						<option value=2>Broadcast</option>
-						</select>
-						
+						<input type="number" name="slaveNum" value="<?php if (isset($num)) echo $num;?>" style="visibility: hidden;" />
+						<br>
+						<input type="submit" class="w3-btn w3-light-green" value="Prześlij" <?php if (!isset($num)) echo "disabled"; ?>/>
+						</form>
 						<br>
 						<br>
-						
-						<br>
-						<br>
-							
-						<input type="submit" class="w3-btn w3-light-green"  id="przyciskPrzeslij" value="Prześlij" />
-							
+						<div class="rameczka ">
+							<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+							<input type="submit" class="w3-btn w3-light-green button" id="slave1" name="s1" value="Slave 1" />
+							</form>
+						</div>
+						<div class="rameczka ">
+							<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+							<input type="submit" class="w3-btn w3-light-green button" id="slave2" name="s2" value="Slave 2" />
+							</form>
+						</div>
+						<div class="rameczka ">
+							<form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>" method="post">
+							<input type="submit" class="w3-btn w3-light-green button" id="slave3" name="s3" value="Broadcast mode" />
+							</form>
+						</div>
 					</div>
-					</form>
 					
 					
+						
 
 				</div>
 				
@@ -224,11 +254,6 @@
 		<div id="footer" class="w3-green">
 			<p class="w3-center w3-small w3-margin-2">Wykonanie: Rafał Araszkiewicz, Przemysław Nikratowicz, Paulina Sadowska</p>
 		</div>
-		
-	
-	<script src="skhmg.js"></script>
-	
-	
 	
 	</body>
 </html>
